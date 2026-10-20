@@ -15,6 +15,7 @@ import threading
 from urllib.parse import urlparse
 
 from PIL import Image
+import playwright
 from playwright.sync_api import sync_playwright
 
 
@@ -96,19 +97,45 @@ class Renderer:
     def open(self):
         self.check()
         self.report("Loading your display case…", 1)
+        bundled = Path(playwright.__file__).parent / "driver" / "package" / ".local-browsers"
+        if bundled.is_dir():
+            os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "0"
         self.pw = sync_playwright().start()
-        try:
-            self.browser = self.pw.chromium.launch(**({"channel": "msedge"} if sys.platform == "win32" else {}), headless=True,
-                args=["--enable-unsafe-swiftshader"])
-        except Exception as exc:
-            raise RuntimeError("The rendering browser could not start. On Windows, install or repair Edge. On Linux, install the dependencies listed in the README.") from exc
+        browser_choice = self.options.get("browser", "auto")
+        candidates = []
+        browser_type = self.pw.firefox if browser_choice == "firefox" else self.pw.chromium
+        if browser_choice == "firefox":
+            candidates = [{}]
+        elif browser_choice == "auto":
+            candidates = [{}, {"channel": "chrome"}, {"channel": "msedge"}]
+        elif browser_choice in ("chrome", "msedge", "chromium"):
+            candidates = [{}] if browser_choice == "chromium" else [{"channel": browser_choice}]
+        elif browser_choice == "custom":
+            browser_path = Path(self.options.get("browser_path", "")).expanduser()
+            if not browser_path.is_file():
+                raise ValueError("Choose the executable file for your Chromium-based browser.")
+            candidates = [{"executable_path": str(browser_path)}]
+        else:
+            raise ValueError("Choose a supported rendering browser.")
+        errors = []
+        for candidate in candidates:
+            try:
+                launch_args = {"headless": True, **candidate}
+                if browser_choice != "firefox":
+                    launch_args["args"] = ["--enable-unsafe-swiftshader"]
+                self.browser = browser_type.launch(**launch_args)
+                break
+            except Exception as exc:
+                errors.append(str(exc))
+        if not self.browser:
+            raise RuntimeError("No compatible rendering browser could start. Try Automatic or the included Firefox engine. " + errors[-1][-400:])
         self.page = self.browser.new_page(viewport={"width": 320, "height": 500},
             device_scale_factor=max(1, float(self.options.get("scale", 1))),
             reduced_motion="no-preference")
         self.page.set_default_timeout(90000)
 
         def document(route):
-            response = route.fetch()
+            response = route.fetch(headers={**route.request.headers, "accept-encoding": "identity"})
             if not response.ok:
                 raise RuntimeError(f"The widget could not be loaded (HTTP {response.status}).")
             route.fulfill(response=response, body=bridge_script(response.text()))
@@ -296,7 +323,7 @@ def export_media(text, options, destination, cancel, report):
                     renderer.page.clock.run_for(round((i+1)*1000/fps)-round(i*1000/fps))
                 report(f"Rendering frame {i+1} of {count}…", 5+75*(i+1)/count)
             # Record reproducible settings, not session cookies or service tokens.
-            metadata = {"app": "SonaLoop 1.0", "source": renderer.url,
+            metadata = {"app": "SonaLoop 1.2.0", "source": renderer.url,
                 "options": options, "clip": info["clip"], "cycleSeconds": count/fps,
                 "framesPerCycle": count, "repeats": repeats}
             if mode == "cycle":

@@ -49,6 +49,11 @@ html,body{height:100%;overflow:hidden;font-family:"Segoe UI",Arial,sans-serif}
 
 </div>
 <div class="section">
+<label for="browser">Rendering browser</label>
+<select id="browser"><option value="auto">Automatic · included Chromium</option><option value="chromium">Included Chromium</option><option value="firefox">Firefox engine · included</option><option value="chrome">Google Chrome</option><option value="msedge">Microsoft Edge</option><option value="custom">Other Chromium browser…</option></select>
+<div class="row gap hidden" id="browserpathrow"><input id="browserpath" placeholder="Browser executable path" type="text"/><button class="small" id="browsebrowser" type="button">Browse…</button></div>
+</div>
+<div class="section">
 <h3>Movement</h3>
 <label for="mode">Capture style</label>
 <select id="mode"><option value="cycle">Synchronized loop</option><option value="natural">Natural recording</option></select>
@@ -88,7 +93,7 @@ const $=id=>document.getElementById(id);
 let scale=3,paused=false,busy=false,info=null,configOverride=null,refreshTimer=null,refreshQueued=false;
 const api=()=>window.pywebview?.api;
 function message(text,error=false){$('message').className=error?'error':'';$('message').replaceChildren(document.createTextNode(text));let b=document.createElement('button');b.textContent='Dismiss';b.onclick=()=>$('message').classList.add('hidden');$('message').append(document.createElement('br'),b);}
-function options(){return {format:$('format').value,scale,fps:Number($('fps').value),repeats:Number($('repeats').value),duration:Number($('duration').value)||0,mode:$('mode').value,rotation:$('rotation').value,outside:$('outside').value==='custom'?$('color').value:$('outside').value,shadow:$('shadow').value,padding:Number($('padding').value),gif_forever:$('forever').checked,config_override:configOverride};}
+function options(){return {format:$('format').value,scale,fps:Number($('fps').value),repeats:Number($('repeats').value),duration:Number($('duration').value)||0,mode:$('mode').value,rotation:$('rotation').value,browser:$('browser').value,browser_path:$('browserpath').value,outside:$('outside').value==='custom'?$('color').value:$('outside').value,shadow:$('shadow').value,padding:Number($('padding').value),gif_forever:$('forever').checked,config_override:configOverride};}
 function setBusy(value){busy=value;for(const id of ['load','refresh','export','import','snapshot'])$(id).disabled=value||(id==='snapshot'&&!info);$('cancel').classList.toggle('hidden',!value);$('loading').classList.toggle('hidden',!value);if(value)$('status').textContent='Loading';}
 async function invoke(fn,...args){if(!api()){message('The desktop connection is not ready yet. Please try again.',true);return;}try{const result=await api()[fn](...args);if(result?.error){message(result.error,true);setBusy(false);}else if(result?.cancelled){setBusy(false);}return result;}catch(e){setBusy(false);message(String(e),true);}}
 async function load(){if(busy)return;if(!$('source').value.trim()){message('Paste your published widget link first.');return;}setBusy(true);$('message').classList.add('hidden');await invoke('preview',$('source').value,options());}
@@ -120,6 +125,8 @@ $('play').onclick=()=>{paused=!paused;if(paused)$('preview').pause();else $('pre
 $('format').onchange=()=>{$('export').textContent='Export '+$('format').value.toUpperCase()+'…';$('giflabel').classList.toggle('hidden',$('format').value!=='gif');};
 $('mode').onchange=()=>{const natural=$('mode').value==='natural';$('rotation').disabled=natural;$('naturalhint').classList.toggle('hidden',!natural);$('modehint').textContent=natural?'Records the original movement and timing.':'One complete animation cycle per turn. Keeps the selected animation moving.';};
 $('outside').onchange=()=>$('customrow').classList.toggle('hidden',$('outside').value!=='custom');
+$('browser').onchange=()=>{$('browserpathrow').classList.toggle('hidden',$('browser').value!=='custom');if(info){if(busy)refreshQueued=true;else load();}};
+$('browsebrowser').onclick=async()=>{const path=await invoke('choose_browser');if(path){$('browserpath').value=path;if(info){if(busy)refreshQueued=true;else load();}}};
 document.querySelectorAll('[data-scale]').forEach(b=>b.onclick=()=>{scale=Number(b.dataset.scale);document.querySelectorAll('[data-scale]').forEach(x=>x.classList.toggle('selected',x===b));dimensions();});
 $('padding').oninput=dimensions;
 for(const id of ['mode','rotation','duration','outside','color','shadow','padding'])$(id).addEventListener('change',()=>{if(!info)return;clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>{if(busy)refreshQueued=true;else load();},500);});

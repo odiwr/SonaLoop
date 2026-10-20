@@ -11,7 +11,7 @@ Updates and support aren't promised. Changes to 360sona may break it.
 
 Get your version from [Releases](https://github.com/odiwr/SonaLoop/releases).
 
-- **Windows:** run `SonaLoop-Windows.exe`. Requires Microsoft Edge.
+- **Windows:** run `SonaLoop-Windows.exe`. Rendering uses bundled Chromium by default. You can choose the included Firefox engine, Chrome, Edge, or another Chromium-based browser in the app. The desktop window uses the Windows WebView2 runtime; Waterfox itself cannot be used as the rendering executable.
 - **macOS:** unzip and open SonaLoop. The app is unsigned.
 - **Linux:** extract the archive and run `SonaLoop/SonaLoop`.
 - **Ubuntu 24.04+:** install the `.deb` with `sudo apt install ./sonaloop*.deb`.

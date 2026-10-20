@@ -124,6 +124,11 @@ class API:
             pass
         return {"text": text, "name": path.name}
 
+    def choose_browser(self):
+        selected = self._window.create_file_dialog(webview.FileDialog.OPEN,
+            file_types=("Browser executable (*.exe)" if sys.platform == "win32" else "All files (*.*)",))
+        return selected[0] if selected else None
+
     def save_snapshot(self):
         if not self._snapshot:
             return {"error": "Load a preview first."}
@@ -161,6 +166,14 @@ def open_path(path):
 
 
 def main():
+    if "--smoke-render" in sys.argv:
+        position = sys.argv.index("--smoke-render")
+        source, target = sys.argv[position+1:position+3]
+        browser = sys.argv[sys.argv.index("--browser")+1] if "--browser" in sys.argv else "chromium"
+        export_media(source, {"browser": browser, "scale": .5, "format": "mp4",
+            "fps": 15, "duration": 1, "repeats": 1}, target,
+            threading.Event(), lambda *args: None)
+        return
     api = API()
     window = webview.create_window("SonaLoop", str(ROOT/"index.html"), js_api=api,
         width=1240, height=850, min_size=(1020, 720), background_color="#d6d6d6",
