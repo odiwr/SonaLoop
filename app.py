@@ -181,7 +181,8 @@ def main():
                 except Exception:
                     pass
             window.destroy()
-    webview.start(smoke, gui="edgechromium" if sys.platform == "win32" else "cocoa" if sys.platform == "darwin" else "gtk", debug=False, icon=str(ROOT/"logo.ico"))
+    icon = "logo.ico" if sys.platform == "win32" else "logo.png"
+    webview.start(smoke, gui="edgechromium" if sys.platform == "win32" else "cocoa" if sys.platform == "darwin" else "gtk", debug=False, icon=str(ROOT/icon))
 
 
 if __name__ == "__main__":
