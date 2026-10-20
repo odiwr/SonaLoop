@@ -7,7 +7,7 @@ on:
       tag:
         description: Release tag
         required: true
-        default: v1.2.0
+        default: v1.2.1
 permissions:
   contents: write
 jobs:
@@ -26,7 +26,7 @@ jobs:
             platform: Linux
     runs-on: ${{ matrix.os }}
     env:
-      PLAYWRIGHT_BROWSERS_PATH: "0"
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.renderer-browsers
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -81,8 +81,8 @@ jobs:
           cp -r dist/SonaLoop packaging/opt/sonaloop
           cp logo.png packaging/usr/share/icons/hicolor/256x256/apps/sonaloop.png
           printf '[Desktop Entry]\nType=Application\nName=SonaLoop\nExec=/opt/sonaloop/SonaLoop\nIcon=sonaloop\nCategories=AudioVideo;Graphics;\nTerminal=false\n' > packaging/usr/share/applications/sonaloop.desktop
-          printf 'Package: sonaloop\nVersion: 1.2.0\nArchitecture: amd64\nMaintainer: odiwr <noreply@github.com>\nDepends: libwebkit2gtk-4.1-0, gir1.2-webkit2-4.1, gir1.2-gtk-3.0, libnss3, libnspr4, libatk-bridge2.0-0, libxkbcommon0, libgbm1, libasound2t64\nDescription: A small unofficial 360sona video and GIF exporter\n' > packaging/DEBIAN/control
-          dpkg-deb --build --root-owner-group packaging artifacts/sonaloop-1.2.0-ubuntu-amd64.deb
+          printf 'Package: sonaloop\nVersion: 1.2.1\nArchitecture: amd64\nMaintainer: odiwr <noreply@github.com>\nDepends: libwebkit2gtk-4.1-0, gir1.2-webkit2-4.1, gir1.2-gtk-3.0, libnss3, libnspr4, libatk-bridge2.0-0, libxkbcommon0, libgbm1, libasound2t64\nDescription: A small unofficial 360sona video and GIF exporter\n' > packaging/DEBIAN/control
+          dpkg-deb --build --root-owner-group packaging artifacts/sonaloop-1.2.1-ubuntu-amd64.deb
       - uses: actions/upload-artifact@v4
         with:
           name: SonaLoop-${{ matrix.platform }}

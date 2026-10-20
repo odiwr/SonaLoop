@@ -97,8 +97,10 @@ class Renderer:
     def open(self):
         self.check()
         self.report("Loading your display case…", 1)
-        bundled = Path(playwright.__file__).parent / "driver" / "package" / ".local-browsers"
+        bundled = Path(sys.executable).parent / ".local-browsers"
         if bundled.is_dir():
+            os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(bundled)
+        elif (Path(playwright.__file__).parent / "driver" / "package" / ".local-browsers").is_dir():
             os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "0"
         self.pw = sync_playwright().start()
         browser_choice = self.options.get("browser", "auto")
@@ -323,7 +325,7 @@ def export_media(text, options, destination, cancel, report):
                     renderer.page.clock.run_for(round((i+1)*1000/fps)-round(i*1000/fps))
                 report(f"Rendering frame {i+1} of {count}…", 5+75*(i+1)/count)
             # Record reproducible settings, not session cookies or service tokens.
-            metadata = {"app": "SonaLoop 1.2.0", "source": renderer.url,
+            metadata = {"app": "SonaLoop 1.2.1", "source": renderer.url,
                 "options": options, "clip": info["clip"], "cycleSeconds": count/fps,
                 "framesPerCycle": count, "repeats": repeats}
             if mode == "cycle":

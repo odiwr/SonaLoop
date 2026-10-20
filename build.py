@@ -16,11 +16,12 @@ args = [sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean",
         "--collect-all", "webview", "--add-binary", f"{encoder}{os.pathsep}."]
 for file in ["index.html", "logo.svg", "logo.ico", "logo.png", "README.md", "licenses"]:
     args += ["--add-data", f"{file}{os.pathsep}."]
-browsers = Path(playwright.__file__).parent / "driver" / "package" / ".local-browsers"
+browser_env = os.environ.get("PLAYWRIGHT_BROWSERS_PATH")
+browsers = Path(browser_env) if browser_env and browser_env != "0" else Path(playwright.__file__).parent / "driver" / "package" / ".local-browsers"
 if not browsers.is_dir():
     raise RuntimeError("Install the bundled renderers first: PLAYWRIGHT_BROWSERS_PATH=0 python -m playwright install chromium --only-shell; python -m playwright install firefox")
-args += ["--add-data", f"{browsers}{os.pathsep}playwright/driver/package/.local-browsers"]
 if sys.platform == "win32":
+    args += ["--add-data", f"{browsers}{os.pathsep}playwright/driver/package/.local-browsers"]
     args += ["--onefile", "--icon", "logo.ico", "--collect-all", "clr_loader",
              "--collect-all", "pythonnet"]
 elif sys.platform == "darwin":
@@ -32,3 +33,7 @@ else:
              "--hidden-import", "gi.repository.WebKit2", "--hidden-import", "gi.repository.Soup"]
 args += ["app.py"]
 subprocess.run(args, check=True)
+if sys.platform == "darwin":
+    shutil.copytree(browsers, root / "dist" / "SonaLoop.app" / "Contents" / "MacOS" / ".local-browsers", dirs_exist_ok=True)
+elif sys.platform == "linux":
+    shutil.copytree(browsers, root / "dist" / "SonaLoop" / ".local-browsers", dirs_exist_ok=True)
