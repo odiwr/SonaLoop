@@ -1,0 +1,4 @@
+pywebview==6.2.1
+playwright==1.60.0
+Pillow==12.3.0
+pyinstaller==6.17.0

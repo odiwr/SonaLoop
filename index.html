@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>SonaLoop</title>
+<style>
+:root{--green:#5b930e;--line:#bfc0c2;--ink:#292929;--muted:#666;--paper:#fff}
+*{box-sizing:border-box}body{margin:0;background:#d6d6d6;color:var(--ink);font:13px "Segoe UI",Arial,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer;color:#292929;background:linear-gradient(#fff,#f7f7f7);border:1px solid #bbbcbf;border-radius:3px;padding:9px 13px;box-shadow:0 1px 1px #0000000c}button:hover{border-color:#7b9f44;background:#f8fbf2}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #6a9b29;outline-offset:2px}button:disabled{cursor:default;opacity:.48}button.primary{background:linear-gradient(#b9d586 0%,#83ae34 36%,#689d1d 52%,#9bbd5e 100%);border-color:#548215;color:#fff;font-weight:700;text-shadow:0 1px 1px #466014;box-shadow:inset 0 1px #ffffff9c,0 1px 2px #0002}button.primary:hover{filter:brightness(1.05)}
+header{height:62px;background:linear-gradient(#fff,#ebebeb);border-bottom:1px solid #b6b6b6;box-shadow:0 2px 5px #0002;display:flex;align-items:center;padding:0 22px;gap:9px}
+header img{width:38px;height:38px}header .brand{font-size:27px;letter-spacing:-1.2px;color:#3c3c3c}header .brand b{font-weight:400;color:#5d851e}.badge{border:1px solid #c8c8c8;background:#eee;border-radius:2px;font-size:11px;padding:3px 8px;margin-left:7px;font-weight:600;color:#666}.spacer{flex:1}.version{font-size:11px;color:#777;margin-right:8px}
+main{display:grid;grid-template-columns:300px minmax(340px,1fr) 280px;gap:10px;padding:12px;height:calc(100vh - 62px);min-height:580px}
+.panel{background:white;border:1px solid #bfc0c2;border-radius:9px;box-shadow:0 2px 3px #0002;overflow:auto;min-width:0}.panel h2{font-size:17px;margin:0;padding:12px 14px 10px;border-bottom:1px solid #ddd;font-family:"Segoe UI",Arial,sans-serif;color:#222}
+.section{padding:13px;border-bottom:1px solid #ddd}.section:last-child{border-bottom:0}.section h3{font-size:14px;margin:0 0 11px}.sub{font-size:12px;color:#666;line-height:1.5;margin:8px 0 0}label{display:block;font-size:12px;color:#555;margin:0 0 6px}
+input,textarea,select{width:100%;border:1px solid #c7c7ca;border-radius:2px;padding:8px;background:#fff;color:#222;box-shadow:inset 0 1px 3px #00000009}textarea{resize:vertical;min-height:92px;max-height:160px;font-size:12px;line-height:1.5}select{padding:7px 5px}input[type=checkbox]{width:auto;box-shadow:none;accent-color:#699c20}input[type=color]{height:32px;padding:2px;width:45px}
+.row{display:flex;align-items:center;gap:8px}.row>*{flex:1}.row .narrow{flex:0 0 72px}.gap{margin-top:11px}.wide{width:100%}.small{font-size:12px;padding:7px 9px}
+.card{background:linear-gradient(#fafafa,#f2f2f2);border:1px solid #d9d9db;border-radius:7px;padding:12px}.field{margin-top:12px}.tabs{display:flex;gap:4px;padding:8px 8px 0;border-bottom:1px solid #bbb;background:#fafafa}.tabs span{padding:9px 16px;background:white;border:1px solid #bbb;border-bottom-color:white;border-radius:5px 5px 0 0;margin-bottom:-1px;font-weight:600}
+.preview{background:radial-gradient(ellipse at 50% 43%,#f9f9f9 0%,#e9e9e9 48%,#c9c9c9 100%);display:flex;flex-direction:column;overflow:hidden}.toolbar{height:45px;display:flex;align-items:center;gap:6px;padding:7px;border-bottom:1px solid #bfc0c2;background:linear-gradient(#e1e1e1,#d4d4d4)}.toolbar button{padding:5px 9px;height:30px}.toolbar .caption{color:#555;font-size:12px;white-space:nowrap}.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:18px;position:relative}.stage img{max-width:100%;max-height:100%;object-fit:contain;display:none}.empty{text-align:center;max-width:270px;color:#777}.empty img{display:block;width:78px;height:78px;margin:0 auto 16px;opacity:.7}.empty h3{font-size:20px;color:#555;font-weight:400;margin:0 0 10px}.empty p{line-height:1.65;margin:0}.previewfoot{padding:11px 15px;border-top:1px solid #bbb;background:linear-gradient(#fff,#eee);font-size:12px;color:#666;display:flex;justify-content:space-between;gap:8px}
+.data{display:grid;grid-template-columns:72px 1fr;font-size:12px;gap:8px;margin:0}.data dt{color:#777}.data dd{margin:0;overflow-wrap:anywhere}.state{font-size:11px;border:1px solid #b7c69c;border-radius:3px;color:#4a7218;background:#f3f7ec;padding:3px 6px;display:inline-block;margin-top:10px}
+.sizes{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.sizes button{padding:10px 0}.sizes button.selected{border:2px solid #639a16;padding:9px 0;box-shadow:0 0 7px #6c9e2840;color:#3b610b;background:linear-gradient(#fdfefb,#edf4e2);font-weight:700}
+.check{display:flex;gap:7px;align-items:center;font-size:12px;color:#444;margin:10px 0 0}.check input{flex:0}.export{padding:14px;background:linear-gradient(#fafafa,#f0f0f0)}.export button{padding:12px;width:100%;font-size:14px}
+footer{height:45px;padding:8px 16px;border-top:1px solid #b7b7b7;background:#eee;display:flex;align-items:center;gap:14px}.status{flex:1;font-size:12px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.dot{width:8px;height:8px;border-radius:50%;background:#75a42f;box-shadow:0 0 0 2px white;flex:none}progress{width:160px;height:8px;accent-color:#76a52f}.hidden{display:none!important}
+#message{position:fixed;bottom:55px;left:325px;right:305px;background:#fff;border:1px solid #a8b78e;box-shadow:0 4px 20px #0002;padding:15px;border-radius:6px;z-index:5;font-size:13px;line-height:1.5}#message.error{border-color:#b67165}#message button{margin-top:10px}.notice{background:#f7f6ee;color:#706b49;padding:8px;border:1px solid #e5dfc8;font-size:11px;line-height:1.4;border-radius:3px;margin-top:9px}
+dialog{border:1px solid #aaa;border-radius:8px;box-shadow:0 10px 40px #0004;max-width:560px;padding:24px;color:#333}dialog::backdrop{background:#0005}dialog p,dialog li{line-height:1.65;font-size:13px}dialog h2{margin-top:0;font:22px "Segoe UI",Arial,sans-serif}dialog button{float:right}
+@media(max-height:780px){.section{padding:10px}.field{margin-top:9px}.section h3{margin-bottom:8px}.sub{font-size:11px}main{min-height:560px}}
+
+html,body{height:100%;overflow:hidden;font-family:"Segoe UI",Arial,sans-serif}
+*{scrollbar-width:none}*::-webkit-scrollbar{display:none}button,input,select,textarea{font-family:"Segoe UI",Arial,sans-serif}
+.stage video{display:none;max-width:100%;max-height:100%;object-fit:contain}
+#loading{position:absolute;inset:0;background:#e9e9e9dc;backdrop-filter:blur(5px);display:flex;flex-direction:column;gap:18px;align-items:center;justify-content:center;z-index:2;color:#58604c}
+.loader-ring{width:38px;height:38px;border-radius:50%;border:3px solid #b9c6a9;border-top-color:#5b930e;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading progress{width:140px;height:4px}header button{position:relative;-webkit-app-region:no-drag}
+#minimize,#closeapp{border:0;background:none;box-shadow:none;width:32px;padding:6px;font-size:21px}#closeapp:hover{background:#c84636;color:white}
+.empty h3{display:none}.empty p{display:none}.empty img{width:60px;height:60px}
+</style>
+</head>
+<body>
+<header><img alt="" src="logo.svg"/><span class="brand pywebview-drag-region">Sona<b>Loop</b></span><span class="badge hidden">Exporter</span><span class="spacer pywebview-drag-region" style="height:100%"></span><button disabled="" id="snapshot">Save display case</button><button id="help">Help</button><button aria-label="Minimize" id="minimize">−</button><button aria-label="Close" id="closeapp">×</button></header>
+<main>
+<aside class="panel">
+<h2>Your display case</h2>
+<div class="section">
+<label for="source">Published link or iframe code</label>
+<textarea id="source" placeholder="https://360sona.com/w/…" spellcheck="false"></textarea>
+<div class="row gap"><button class="small" id="import">Import file…</button><button class="primary small" id="load">Load preview</button></div>
+
+</div>
+<div class="section">
+<h3>Movement</h3>
+<label for="mode">Capture style</label>
+<select id="mode"><option value="cycle">Synchronized loop</option><option value="natural">Natural recording</option></select>
+<p class="hidden" id="modehint">One complete animation cycle per turn. Keeps the selected animation moving.</p>
+<div class="field"><label for="rotation">Turntable</label><select id="rotation"><option value="source">Follow display case</option><option value="full">Full 360° per cycle</option><option value="off">No rotation</option></select></div>
+<div class="field row"><div><label for="duration">Seconds per cycle</label><input id="duration" max="120" min="1" placeholder="Auto · original clip" step=".1" type="number"/></div><div class="narrow"><label for="repeats">Repeats</label><input id="repeats" max="10" min="1" type="number" value="2"/></div></div>
+<div class="notice hidden" id="naturalhint">Natural recording preserves random idles and prop actions. Its start and end may differ, so it is not a seamless loop.</div>
+</div>
+<div class="section">
+<h3>From your source</h3>
+<dl class="data"><dt>Name</dt><dd id="info-name">—</dd><dt>Animation</dt><dd id="info-clip">—</dd><dt>Expression</dt><dd id="info-face">—</dd><dt>Background</dt><dd id="info-bg">—</dd><dt>Frame</dt><dd id="info-size">—</dd></dl>
+<span class="state hidden" id="source-state">Waiting for a display case</span>
+<p class="hidden" id="source-note">Saved editor pages may contain only default controls. A published widget link contains the live settings.</p>
+</div>
+</aside>
+<section class="panel preview">
+<div class="toolbar"><span class="caption">Display case preview</span><span class="spacer"></span><button aria-label="Pause preview" disabled="" id="play" title="Pause preview">Ⅱ</button><button id="refresh" title="Refresh preview">↻</button></div>
+<div class="stage"><div class="empty" id="empty"><img alt="" src="logo.svg"/><h3>Keep it moving.</h3><p>Bring in a 360sona display case.<br/>Take home a video or a looping GIF.</p></div><video aria-label="Animated export preview" autoplay="" id="preview" loop="" muted="" playsinline=""></video><div aria-live="polite" class="hidden" id="loading" role="status"><div class="loader-ring"></div><span id="status">Loading</span><progress id="progress" max="100" value="0"></progress></div></div>
+<span class="hidden" id="dimensions"></span>
+</section>
+<aside class="panel" id="exportpanel" style="display:flex;flex-direction:column;overflow:hidden">
+<div class="tabs"><span>Export settings</span></div>
+<div style="overflow:auto;flex:1;min-height:0">
+<div class="section"><h3>File</h3><div class="row"><div><label for="format">Format</label><select id="format"><option value="mp4">MP4 video</option><option value="gif">Animated GIF</option></select></div><div><label for="fps">Frame rate</label><select id="fps"><option value="15">15 fps</option><option value="20">20 fps</option><option selected="" value="30">30 fps</option><option value="60">60 fps</option></select></div></div><label class="check hidden" id="giflabel"><input checked="" id="forever" type="checkbox"/>GIF repeats forever</label></div>
+<div class="section"><h3>Resolution</h3><div aria-label="Resolution scale" class="sizes" role="group"><button data-scale=".5">½×</button><button data-scale="1">1×</button><button data-scale="2">2×</button><button class="selected" data-scale="3">3×</button></div></div>
+<div class="section"><h3>Outside the frame</h3><label for="outside">Outer background</label><select id="outside"><option value="auto">Automatic · source / white</option><option value="white">White</option><option value="dark">Dark gray</option><option value="transparent">Transparent · GIF only</option><option value="custom">Custom color</option></select><div class="row gap hidden" id="customrow"><input id="color" type="color" value="#ffffff"/><span>Custom outer color</span></div>
+<div class="field"><label for="shadow">Drop shadow</label><select id="shadow"><option value="source">Follow display case</option><option value="on">On</option><option value="off">Off</option></select></div>
+<div class="field"><label for="padding">Outer spacing · before scaling</label><input id="padding" max="100" min="0" type="number" value="20"/></div></div>
+
+</div><div class="export" style="border-top:1px solid #ccc"><button class="primary" id="export">Export MP4…</button><button class="hidden gap" id="cancel">Cancel</button><div class="row gap hidden" id="result"><button class="small" id="open">Play file</button><button class="small" id="folder">Open folder</button></div></div>
+</aside>
+</main>
+<div class="hidden" id="message"></div>
+<dialog id="helpdialog"><h2>SonaLoop</h2><p>A local exporter for your 360sona display cases.</p><ol><li>Paste a published widget link or iframe. You can also import a saved widget HTML file or a SonaLoop JSON snapshot.</li><li>Load the preview to see the source settings. Choose a format and resolution.</li><li>Export. MP4 repeats are baked into the video; GIF can repeat forever or use your repeat count.</li></ol><p><b>Synchronized loop:</b> plays the loaded animation once for each full turn, if turntable is enabled. An Alive/random playlist uses the currently loaded idle for a repeatable cycle. The source clip itself must be loopable for a seamless pose transition.</p><p><b>Natural recording:</b> follows the live site's animation, expressions, timing, playlist and prop actions. It does not alter rotation speed or guarantee a seamless ending.</p><p>Snapshots preserve the public avatar and config, but assets still load from 360sona. No website login or Python installation is needed. MP4 cannot carry transparency; GIF has limited colors and hard transparency edges.</p><p>Website renderer changes may require an app update. SonaLoop is not affiliated with 360sona or Microsoft.</p><button id="closehelp">Close</button></dialog>
+<script>
+const $=id=>document.getElementById(id);
+let scale=3,paused=false,busy=false,info=null,configOverride=null,refreshTimer=null,refreshQueued=false;
+const api=()=>window.pywebview?.api;
+function message(text,error=false){$('message').className=error?'error':'';$('message').replaceChildren(document.createTextNode(text));let b=document.createElement('button');b.textContent='Dismiss';b.onclick=()=>$('message').classList.add('hidden');$('message').append(document.createElement('br'),b);}
+function options(){return {format:$('format').value,scale,fps:Number($('fps').value),repeats:Number($('repeats').value),duration:Number($('duration').value)||0,mode:$('mode').value,rotation:$('rotation').value,outside:$('outside').value==='custom'?$('color').value:$('outside').value,shadow:$('shadow').value,padding:Number($('padding').value),gif_forever:$('forever').checked,config_override:configOverride};}
+function setBusy(value){busy=value;for(const id of ['load','refresh','export','import','snapshot'])$(id).disabled=value||(id==='snapshot'&&!info);$('cancel').classList.toggle('hidden',!value);$('loading').classList.toggle('hidden',!value);if(value)$('status').textContent='Loading';}
+async function invoke(fn,...args){if(!api()){message('The desktop connection is not ready yet. Please try again.',true);return;}try{const result=await api()[fn](...args);if(result?.error){message(result.error,true);setBusy(false);}else if(result?.cancelled){setBusy(false);}return result;}catch(e){setBusy(false);message(String(e),true);}}
+async function load(){if(busy)return;if(!$('source').value.trim()){message('Paste your published widget link first.');return;}setBusy(true);$('message').classList.add('hidden');await invoke('preview',$('source').value,options());}
+function dimensions(){if(!info)return;const p=Number($('padding').value)||0;$('dimensions').textContent=Math.round((info.width+2*p)*scale)+' × '+Math.round((info.height+2*p)*scale); }
+
+window.receive=(kind,data)=>{
+ if(kind==='progress'){$('status').textContent=data.message;$('progress').value=data.percent;}
+ if(kind==='error'){message(data,true);$('status').textContent='Could not finish. '+data;}
+ if(kind==='cancelled'){$('status').textContent=data;$('progress').value=0;}
+ if(kind==='idle'){setBusy(false);if(refreshQueued){refreshQueued=false;load();}}
+ if(kind==='preview'){
+  info=data.info;paused=false;
+  $('empty').classList.add('hidden');$('preview').style.display='block';$('preview').src='data:video/mp4;base64,'+data.video;$('preview').play().catch(()=>{});$('play').disabled=false;$('play').textContent='Ⅱ';
+  $('info-name').textContent=info.name||'Avatar';$('info-clip').textContent=info.frozen?'Hold still':info.clip||'None';
+  $('info-face').textContent=info.config.stage?.face||'Follow animation';$('info-bg').textContent=info.config.frame?.bgMode==='grad'?'Gradient':info.config.frame?.bgMode||'Skin artwork';
+  $('info-size').textContent=info.width+' × '+info.height;$('source-state').textContent='Settings loaded';
+  $('source-note').textContent=info.playlist?'Alive playlist: synchronized export repeats the loaded idle. Choose Natural recording for the playlist.':'Source settings preserved. Preview is sampled; export uses your selected frame rate.';
+  $('status').textContent='Preview ready. Choose Export to save your file.';$('progress').value=0;dimensions();
+ }
+ if(kind==='done'){$('result').classList.remove('hidden');$('status').textContent='Saved: '+data.path;}
+};
+$('load').onclick=load;$('refresh').onclick=load;
+$('export').onclick=async()=>{if(busy)return;setBusy(true);$('message').classList.add('hidden');await invoke('export',$('source').value,options());};
+$('cancel').onclick=()=>invoke('cancel');$('open').onclick=()=>invoke('open_output');$('folder').onclick=()=>invoke('open_folder');
+$('import').onclick=async()=>{const r=await invoke('import_file');if(r?.text){configOverride=null;$('source').value=r.text;$('status').textContent='Imported '+r.name+'. Load preview to inspect it.';}if(r?.config){configOverride=r.config;message('Imported display-case settings. Keep or paste the published widget link for its avatar, then Load preview.');}};
+$('source').addEventListener('input',()=>{info=null;$('snapshot').disabled=true;});
+$('snapshot').onclick=()=>invoke('save_snapshot');
+$('play').onclick=()=>{paused=!paused;if(paused)$('preview').pause();else $('preview').play();$('play').textContent=paused?'▶':'Ⅱ';$('play').setAttribute('aria-label',paused?'Play preview':'Pause preview');};
+$('format').onchange=()=>{$('export').textContent='Export '+$('format').value.toUpperCase()+'…';$('giflabel').classList.toggle('hidden',$('format').value!=='gif');};
+$('mode').onchange=()=>{const natural=$('mode').value==='natural';$('rotation').disabled=natural;$('naturalhint').classList.toggle('hidden',!natural);$('modehint').textContent=natural?'Records the original movement and timing.':'One complete animation cycle per turn. Keeps the selected animation moving.';};
+$('outside').onchange=()=>$('customrow').classList.toggle('hidden',$('outside').value!=='custom');
+document.querySelectorAll('[data-scale]').forEach(b=>b.onclick=()=>{scale=Number(b.dataset.scale);document.querySelectorAll('[data-scale]').forEach(x=>x.classList.toggle('selected',x===b));dimensions();});
+$('padding').oninput=dimensions;
+for(const id of ['mode','rotation','duration','outside','color','shadow','padding'])$(id).addEventListener('change',()=>{if(!info)return;clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>{if(busy)refreshQueued=true;else load();},500);});
+$('minimize').onclick=()=>invoke('minimize');$('closeapp').onclick=()=>invoke('close');
+$('help').onclick=()=>$('helpdialog').showModal();$('closehelp').onclick=()=>$('helpdialog').close();
+</script>
+</body>
+</html>
