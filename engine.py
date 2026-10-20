@@ -325,7 +325,7 @@ def export_media(text, options, destination, cancel, report):
                     renderer.page.clock.run_for(round((i+1)*1000/fps)-round(i*1000/fps))
                 report(f"Rendering frame {i+1} of {count}…", 5+75*(i+1)/count)
             # Record reproducible settings, not session cookies or service tokens.
-            metadata = {"app": "SonaLoop 1.2.1", "source": renderer.url,
+            metadata = {"app": "SonaLoop 1.3.0", "source": renderer.url,
                 "options": options, "clip": info["clip"], "cycleSeconds": count/fps,
                 "framesPerCycle": count, "repeats": repeats}
             if mode == "cycle":

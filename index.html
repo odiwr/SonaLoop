@@ -91,11 +91,13 @@ html,body{height:100%;overflow:hidden;font-family:"Segoe UI",Arial,sans-serif}
 <script>
 const $=id=>document.getElementById(id);
 let scale=3,paused=false,busy=false,info=null,configOverride=null,refreshTimer=null,refreshQueued=false;
+const browserMode=!!window.SONALOOP_BROWSER;
 const api=()=>window.pywebview?.api;
+function download(url){const link=document.createElement('a');link.href=url;document.body.append(link);link.click();link.remove();}
 function message(text,error=false){$('message').className=error?'error':'';$('message').replaceChildren(document.createTextNode(text));let b=document.createElement('button');b.textContent='Dismiss';b.onclick=()=>$('message').classList.add('hidden');$('message').append(document.createElement('br'),b);}
 function options(){return {format:$('format').value,scale,fps:Number($('fps').value),repeats:Number($('repeats').value),duration:Number($('duration').value)||0,mode:$('mode').value,rotation:$('rotation').value,browser:$('browser').value,browser_path:$('browserpath').value,outside:$('outside').value==='custom'?$('color').value:$('outside').value,shadow:$('shadow').value,padding:Number($('padding').value),gif_forever:$('forever').checked,config_override:configOverride};}
 function setBusy(value){busy=value;for(const id of ['load','refresh','export','import','snapshot'])$(id).disabled=value||(id==='snapshot'&&!info);$('cancel').classList.toggle('hidden',!value);$('loading').classList.toggle('hidden',!value);if(value)$('status').textContent='Loading';}
-async function invoke(fn,...args){if(!api()){message('The desktop connection is not ready yet. Please try again.',true);return;}try{const result=await api()[fn](...args);if(result?.error){message(result.error,true);setBusy(false);}else if(result?.cancelled){setBusy(false);}return result;}catch(e){setBusy(false);message(String(e),true);}}
+async function invoke(fn,...args){if(!browserMode&&!api()){message('The desktop connection is not ready yet. Please try again.',true);return;}try{const result=browserMode?await (await fetch('api/'+fn,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(args)})).json():await api()[fn](...args);if(result?.error){message(result.error,true);setBusy(false);}else if(result?.cancelled){setBusy(false);}return result;}catch(e){setBusy(false);message(String(e),true);}}
 async function load(){if(busy)return;if(!$('source').value.trim()){message('Paste your published widget link first.');return;}setBusy(true);$('message').classList.add('hidden');await invoke('preview',$('source').value,options());}
 function dimensions(){if(!info)return;const p=Number($('padding').value)||0;$('dimensions').textContent=Math.round((info.width+2*p)*scale)+' × '+Math.round((info.height+2*p)*scale); }
 
@@ -113,14 +115,22 @@ window.receive=(kind,data)=>{
   $('source-note').textContent=info.playlist?'Alive playlist: synchronized export repeats the loaded idle. Choose Natural recording for the playlist.':'Source settings preserved. Preview is sampled; export uses your selected frame rate.';
   $('status').textContent='Preview ready. Choose Export to save your file.';$('progress').value=0;dimensions();
  }
- if(kind==='done'){$('result').classList.remove('hidden');$('status').textContent='Saved: '+data.path;}
+ if(kind==='done'){$('result').classList.toggle('hidden',browserMode);$('status').textContent=browserMode?'Export ready. Your browser is downloading it.':'Saved: '+data.path;if(data.download)download(data.download);}
 };
+if(browserMode){
+ $('minimize').classList.add('hidden');$('browsebrowser').classList.add('hidden');
+ const fileInput=document.createElement('input');fileInput.type='file';fileInput.accept='.html,.htm,.json,.txt';fileInput.className='hidden';document.body.append(fileInput);
+ fileInput.onchange=async()=>{const file=fileInput.files?.[0];if(!file)return;if(file.size>10000000){message('This file is too large to import.',true);return;}const content=await file.text();try{const parsed=JSON.parse(content),config=parsed.config||parsed;if(config.stage&&config.frame&&!parsed.avatar){configOverride=config;message('Imported display-case settings. Keep or paste the published widget link for its avatar, then Load preview.');return;}}catch{}configOverride=null;$('source').value=content;$('status').textContent='Imported '+file.name+'. Load preview to inspect it.';};
+ $('import').onclick=()=>{fileInput.value='';fileInput.click();};
+ $('snapshot').onclick=async()=>{const result=await invoke('save_snapshot');if(result?.download)download(result.download);};
+ let polling=false;setInterval(async()=>{if(polling)return;polling=true;try{const result=await fetch('events',{cache:'no-store'});if(result.ok)for(const event of await result.json())window.receive(event.kind,event.data);}catch{}finally{polling=false;}},250);
+}
 $('load').onclick=load;$('refresh').onclick=load;
 $('export').onclick=async()=>{if(busy)return;setBusy(true);$('message').classList.add('hidden');await invoke('export',$('source').value,options());};
 $('cancel').onclick=()=>invoke('cancel');$('open').onclick=()=>invoke('open_output');$('folder').onclick=()=>invoke('open_folder');
-$('import').onclick=async()=>{const r=await invoke('import_file');if(r?.text){configOverride=null;$('source').value=r.text;$('status').textContent='Imported '+r.name+'. Load preview to inspect it.';}if(r?.config){configOverride=r.config;message('Imported display-case settings. Keep or paste the published widget link for its avatar, then Load preview.');}};
+if(!browserMode)$('import').onclick=async()=>{const r=await invoke('import_file');if(r?.text){configOverride=null;$('source').value=r.text;$('status').textContent='Imported '+r.name+'. Load preview to inspect it.';}if(r?.config){configOverride=r.config;message('Imported display-case settings. Keep or paste the published widget link for its avatar, then Load preview.');}};
 $('source').addEventListener('input',()=>{info=null;$('snapshot').disabled=true;});
-$('snapshot').onclick=()=>invoke('save_snapshot');
+if(!browserMode)$('snapshot').onclick=()=>invoke('save_snapshot');
 $('play').onclick=()=>{paused=!paused;if(paused)$('preview').pause();else $('preview').play();$('play').textContent=paused?'▶':'Ⅱ';$('play').setAttribute('aria-label',paused?'Play preview':'Pause preview');};
 $('format').onchange=()=>{$('export').textContent='Export '+$('format').value.toUpperCase()+'…';$('giflabel').classList.toggle('hidden',$('format').value!=='gif');};
 $('mode').onchange=()=>{const natural=$('mode').value==='natural';$('rotation').disabled=natural;$('naturalhint').classList.toggle('hidden',!natural);$('modehint').textContent=natural?'Records the original movement and timing.':'One complete animation cycle per turn. Keeps the selected animation moving.';};
@@ -130,7 +140,7 @@ $('browsebrowser').onclick=async()=>{const path=await invoke('choose_browser');i
 document.querySelectorAll('[data-scale]').forEach(b=>b.onclick=()=>{scale=Number(b.dataset.scale);document.querySelectorAll('[data-scale]').forEach(x=>x.classList.toggle('selected',x===b));dimensions();});
 $('padding').oninput=dimensions;
 for(const id of ['mode','rotation','duration','outside','color','shadow','padding'])$(id).addEventListener('change',()=>{if(!info)return;clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>{if(busy)refreshQueued=true;else load();},500);});
-$('minimize').onclick=()=>invoke('minimize');$('closeapp').onclick=()=>invoke('close');
+$('minimize').onclick=()=>invoke('minimize');$('closeapp').onclick=async()=>{await invoke('close');if(browserMode){document.body.replaceChildren(document.createTextNode('SonaLoop is closed. You can close this tab.'));}else window.close();};
 $('help').onclick=()=>$('helpdialog').showModal();$('closehelp').onclick=()=>$('helpdialog').close();
 </script>
 </body>
