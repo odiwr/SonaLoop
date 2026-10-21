@@ -12,8 +12,8 @@ Updates and support aren't promised. Changes to 360sona may break it.
 ## Examples
 
 <p align="center">
-  <a href="https://github.com/odiwr/SonaLoop/releases/download/v1.3.0/BBLDRIZZY.mp4"><img src="examples/BBLDRIZZY.gif" alt="BBLDRIZZY avatar animation" width="220"></a>
-  <a href="https://github.com/odiwr/SonaLoop/releases/download/v1.3.0/SK8.mp4"><img src="examples/SK8.gif" alt="SK8 avatar animation" width="220"></a>
+  <a href="https://github.com/odiwr/SonaLoop/releases/download/v1.3.0/BBLDRIZZY.mp4"><img src="examples/BBLDRIZZY.gif" alt="BBLDRIZZY avatar animation" width="220"></a>&emsp;
+  <a href="https://github.com/odiwr/SonaLoop/releases/download/v1.3.0/SK8.mp4"><img src="examples/SK8.gif" alt="SK8 avatar animation" width="220"></a>&emsp;
   <a href="https://github.com/odiwr/SonaLoop/releases/download/v1.3.0/SonaLoop.mp4"><img src="examples/SonaLoop.gif" alt="SonaLoop avatar animation" width="220"></a>
 </p>
 
