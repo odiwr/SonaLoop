@@ -11,12 +11,11 @@ Updates and support aren't promised. Changes to 360sona may break it.
 
 ## Examples
 
-Short GIF previews are shown below. Open the MP4 links for the complete videos.
-
-| BBLDRIZZY | SK8 | SonaLoop |
-|:---:|:---:|:---:|
-| <img src="examples/BBLDRIZZY.gif" alt="BBLDRIZZY avatar animation preview" width="220"> | <img src="examples/SK8.gif" alt="SK8 avatar animation preview" width="220"> | <img src="examples/SonaLoop.gif" alt="SonaLoop avatar animation preview" width="220"> |
-| [Watch full MP4](https://github.com/odiwr/SonaLoop/releases/download/v1.3.0/BBLDRIZZY.mp4) | [Watch full MP4](https://github.com/odiwr/SonaLoop/releases/download/v1.3.0/SK8.mp4) | [Watch full MP4](https://github.com/odiwr/SonaLoop/releases/download/v1.3.0/SonaLoop.mp4) |
+<p align="center">
+  <a href="https://github.com/odiwr/SonaLoop/releases/download/v1.3.0/BBLDRIZZY.mp4"><img src="examples/BBLDRIZZY.gif" alt="BBLDRIZZY avatar animation" width="220"></a>
+  <a href="https://github.com/odiwr/SonaLoop/releases/download/v1.3.0/SK8.mp4"><img src="examples/SK8.gif" alt="SK8 avatar animation" width="220"></a>
+  <a href="https://github.com/odiwr/SonaLoop/releases/download/v1.3.0/SonaLoop.mp4"><img src="examples/SonaLoop.gif" alt="SonaLoop avatar animation" width="220"></a>
+</p>
 
 ## Download
 
